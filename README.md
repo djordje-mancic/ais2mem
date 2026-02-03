@@ -1,7 +1,7 @@
 # ais2mem
 Converts Texas Instruments AIS (Application Image Script) files into .bin files. The contents of the AIS file are laid out in the binary file the same way they would be loaded into the memory of a system by it's bootloader.
 
-Please note that this converter doesn't support all AIS commands.
+This converter tries to implement most of the platform-agnostic AIS commands. Platform specific commands, as well as code execution are not implemented.
 
 ## Usage
 The command format is

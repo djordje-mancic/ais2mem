@@ -4,6 +4,7 @@ pub struct ProgramOptions {
     pub path: Option<PathBuf>,
     pub output_path: Option<PathBuf>,
     pub verbose: bool,
+    pub compact: bool,
 }
 
 impl Default for ProgramOptions {
@@ -12,6 +13,7 @@ impl Default for ProgramOptions {
             path: Default::default(),
             output_path: Default::default(),
             verbose: false,
+            compact: false,
         }
     }
 }
@@ -31,6 +33,7 @@ pub fn get_config() -> Option<ProgramOptions> {
                 };
                 config.output_path = Some(PathBuf::from(out_arg));
             }
+            "-c" | "--compact" => config.compact = true,
             _ => {
                 if arg.starts_with("-") {
                     help();
@@ -50,8 +53,12 @@ pub fn get_config() -> Option<ProgramOptions> {
     return Some(config);
 }
 
-const HELP_OPTIONS: [(&str, &str); 3] = [
+const HELP_OPTIONS: [(&str, &str); 4] = [
     ("-o, --out", "Output memory into specified file"),
+    (
+        "-c, --compact",
+        "Trims output file into compact form without leading null bytes",
+    ),
     ("-v, --verbose", "Show verbose output"),
     ("-h, --help", "Display help"),
 ];

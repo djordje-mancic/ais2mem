@@ -1,14 +1,17 @@
 use std::{
     fs::{File, OpenOptions},
-    io::{BufReader, BufWriter, Write, stdin, stdout},
+    io::{BufReader, Write, stdin, stdout},
     path::PathBuf,
     process::exit,
 };
 
-use crate::{ais::{convert, is_ais}, options::get_config};
+use crate::{
+    ais::{convert, is_ais},
+    options::get_config,
+};
 
-mod options;
 mod ais;
+mod options;
 
 fn main() {
     let options = get_config().expect("Error retrieving options");
@@ -22,7 +25,7 @@ fn main() {
         let _ = input_file_result.inspect_err(|e| eprintln!("Couldn't open file {:?}: {e}", path));
         exit(-1);
     };
-    let mut input_file_reader = BufReader::new(input_file);
+    let mut input_file_reader = BufReader::new(&input_file);
 
     // Check if magic word at the start of file is correct
     if !is_ais(&mut input_file_reader) {
@@ -72,8 +75,17 @@ fn main() {
         });
         exit(-1);
     };
-    let mut output_file_writer = BufWriter::new(output_file);
 
     // Convert AIS input file and write to output file
-    convert(&options, &mut input_file_reader, &mut output_file_writer);
+    let conversion_result = convert(&options, &mut input_file_reader, &output_file);
+    let Ok((entry_point, lowest_address)) = conversion_result else {
+        let _ = conversion_result.inspect_err(|e| eprintln!("Error converting {:?}: {e}", path));
+        exit(-1);
+    };
+
+    println!("Conversion completed");
+    println!("Entry point: 0x{entry_point:X}");
+    if options.compact {
+        println!("Memory offset: 0x{lowest_address:X}");
+    }
 }
